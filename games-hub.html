@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>3D Games Collection</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin: 40px 0;
+            font-size: 48px;
+            background: linear-gradient(135deg, #00ff88 0%, #ff6600 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .game-card {
+            background: linear-gradient(135deg, rgba(0,255,136,0.1) 0%, rgba(255,102,0,0.1) 100%);
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: block;
+        }
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 40px rgba(0,255,136,0.3);
+            border-color: #ff6600;
+        }
+        .game-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+        .game-card h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #00ff88;
+        }
+        .game-card p {
+            font-size: 14px;
+            color: #aaa;
+            line-height: 1.6;
+        }
+        .play-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #00ff88 0%, #ff6600 100%);
+            color: #000;
+            padding: 12px 30px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .play-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255,102,0,0.5);
+        }
+        .about {
+            background: rgba(0,255,136,0.05);
+            border: 1px solid #00ff88;
+            border-radius: 10px;
+            padding: 30px;
+            margin-top: 50px;
+            text-align: center;
+        }
+        .about h3 {
+            color: #ff6600;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        .about p {
+            color: #aaa;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 3D GAMES COLLECTION</h1>
+
+        <div class="games-grid">
+            <a href="space-runner.html" class="game-card">
+                <div class="game-icon">🚀</div>
+                <h2>SPACE RUNNER</h2>
+                <p>Navigate through space, collect coins, avoid obstacles, and reach new levels!</p>
+                <div class="play-btn">PLAY NOW</div>
+            </a>
+
+            <a href="flappy-bird-3d.html" class="game-card">
+                <div class="game-icon">🐦</div>
+                <h2>3D FLAPPY BIRD</h2>
+                <p>Classic flappy mechanics in stunning 3D! Tap to flap and pass through pipes.</p>
+                <div class="play-btn">PLAY NOW</div>
+            </a>
+
+            <a href="parkour-runner.html" class="game-card">
+                <div class="game-icon">🏃</div>
+                <h2>PARKOUR RUNNER</h2>
+                <p>Jump across platforms, build combos, and climb higher than ever before!</p>
+                <div class="play-btn">PLAY NOW</div>
+            </a>
+
+            <a href="asteroid-shooter.html" class="game-card">
+                <div class="game-icon">🔫</div>
+                <h2>ASTEROID SHOOTER</h2>
+                <p>Defend your ship! Shoot incoming asteroids and destroy them all!</p>
+                <div class="play-btn">PLAY NOW</div>
+            </a>
+
+            <a href="endless-surfer.html" class="game-card">
+                <div class="game-icon">🏄</div>
+                <h2>ENDLESS SURFER</h2>
+                <p>Ride the waves! Collect shells and avoid rocks while surfing endlessly!</p>
+                <div class="play-btn">PLAY NOW</div>
+            </a>
+        </div>
+
+        <div class="about">
+            <h3>⭐ Welcome to 3D Gaming!</h3>
+            <p>🎯 5 Amazing 3D Games built with Three.js</p>
+            <p>💻 Works on Desktop, Tablet & Mobile</p>
+            <p>🚀 No Installation Needed - Play Instantly</p>
+            <p>🌟 Compete & Beat Your High Scores!</p>
+        </div>
+
+        <footer>
+            <p>© 2026 3D Games Collection | Made with Three.js | Have Fun! 🎮</p>
+        </footer>
+    </div>
+</body>
+</html>
