@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000">
+    <title>ENDLESS SURFER</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background: #1a4d7a;
+            font-family: 'Courier New', monospace;
+        }
+        #gameContainer { width: 100vw; height: 100vh; }
+        #hud {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: #00ffff;
+            z-index: 100;
+            text-shadow: 0 0 10px #00ffff;
+            font-weight: bold;
+        }
+        #distance { font-size: 32px; letter-spacing: 2px; }
+        #shells { font-size: 20px; margin-top: 5px; color: #ffff00; }
+        #speed { font-size: 16px; margin-top: 5px; opacity: 0.7; }
+        #gameOverScreen {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.95);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            color: #00ffff;
+            z-index: 200;
+            display: none;
+            border: 2px solid #00ffff;
+        }
+        #gameOverScreen h1 { font-size: 48px; margin-bottom: 20px; }
+        #gameOverScreen p { font-size: 24px; margin: 10px 0; }
+        #gameOverScreen button {
+            background: #00ffff;
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        #controls { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.3); font-size: 12px; z-index: 10; }
+    </style>
+</head>
+<body>
+    <div id="gameContainer"></div>
+    <div id="hud">
+        <div id="distance">DISTANCE: 0m</div>
+        <div id="shells">SHELLS: 🐚 0</div>
+        <div id="speed">SPEED: 1.0x</div>
+    </div>
+    <div id="gameOverScreen">
+        <h1>WIPED OUT!</h1>
+        <p id="finalDistance">DISTANCE: 0m</p>
+        <p id="shellsCollected">SHELLS: 🐚 0</p>
+        <button onclick="location.reload()">SURF AGAIN</button>
+        <button onclick="window.location='games-hub.html'" style="margin-left:10px;">BACK</button>
+    </div>
+    <div id="controls">SWIPE/DRAG to MOVE • COLLECT SHELLS • AVOID ROCKS!</div>
+
+    <script>
+        let scene, camera, renderer, surfer, waves = [], shells = [], rocks = [];
+        let distance = 0, shellsCollected = 0, speed = 1, gameActive = true;
+        let surferX = 0;
+        let mouseX = 0;
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a4d7a);
+            scene.fog = new THREE.Fog(0x1a4d7a, 50, 100);
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 8;
+            camera.position.y = 2;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.getElementById('gameContainer').appendChild(renderer.domElement);
+
+            // Surfer
+            const surferGeom = new THREE.BoxGeometry(0.8, 0.4, 1.2);
+            const surferMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
+            surfer = new THREE.Mesh(surferGeom, surferMat);
+            surfer.position.y = 1;
+            scene.add(surfer);
+
+            // Water
+            createWaterPlane();
+
+            animate();
+        }
+
+        function createWaterPlane() {
+            const waterGeom = new THREE.PlaneGeometry(200, 200);
+            const waterMat = new THREE.MeshBasicMaterial({ 
+                color: 0x0088cc,
+                transparent: true,
+                opacity: 0.5
+            });
+            const water = new THREE.Mesh(waterGeom, waterMat);
+            water.position.z = -1;
+            water.position.y = -1;
+            scene.add(water);
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth - 0.5) * 14;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            mouseX = (e.touches[0].clientX / window.innerWidth - 0.5) * 14;
+        }, false);
+
+        function createShell() {
+            const shellGeom = new THREE.SphereGeometry(0.25, 8, 8);
+            const shellMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+            const shell = new THREE.Mesh(shellGeom, shellMat);
+            shell.position.x = (Math.random() - 0.5) * 12;
+            shell.position.z = 50;
+            shell.position.y = 0.5 + Math.sin(shell.position.x) * 2;
+            scene.add(shell);
+            shells.push({ mesh: shell, z: 50 });
+        }
+
+        function createRock() {
+            const rockGeom = new THREE.IcosahedronGeometry(0.4, 2);
+            const rockMat = new THREE.MeshBasicMaterial({ color: 0x444444 });
+            const rock = new THREE.Mesh(rockGeom, rockMat);
+            rock.position.x = (Math.random() - 0.5) * 12;
+            rock.position.z = 50;
+            rock.position.y = 0.5 + Math.sin(rock.position.x) * 2;
+            scene.add(rock);
+            rocks.push({ mesh: rock, z: 50 });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if(!gameActive) {
+                renderer.render(scene, camera);
+                return;
+            }
+
+            // Surfer movement
+            surfer.position.x += (mouseX - surfer.position.x) * 0.1;
+            surfer.rotation.z = (mouseX - surfer.position.x) * 0.02;
+            surfer.position.y = 1 + Math.sin(distance * 0.01) * 0.3;
+
+            // Spawn items
+            if(Math.random() < 0.03) createShell();
+            if(Math.random() < 0.02 + speed * 0.005) createRock();
+
+            // Update shells
+            for(let i = shells.length - 1; i >= 0; i--) {
+                shells[i].z -= speed * 0.15;
+                shells[i].mesh.position.z = shells[i].z;
+                shells[i].mesh.rotation.x += 0.02;
+                shells[i].mesh.rotation.y += 0.02;
+
+                if(Math.abs(surfer.position.x - shells[i].mesh.position.x) < 1 && 
+                   Math.abs(surfer.position.y - shells[i].mesh.position.y) < 1) {
+                    shellsCollected++;
+                    scene.remove(shells[i].mesh);
+                    shells.splice(i, 1);
+                    continue;
+                }
+
+                if(shells[i].z < -10) {
+                    scene.remove(shells[i].mesh);
+                    shells.splice(i, 1);
+                }
+            }
+
+            // Update rocks
+            for(let i = rocks.length - 1; i >= 0; i--) {
+                rocks[i].z -= speed * 0.15;
+                rocks[i].mesh.position.z = rocks[i].z;
+                rocks[i].mesh.rotation.x += 0.01;
+                rocks[i].mesh.rotation.y += 0.01;
+
+                if(Math.abs(surfer.position.x - rocks[i].mesh.position.x) < 1.2 && 
+                   Math.abs(surfer.position.y - rocks[i].mesh.position.y) < 1.2) {
+                    endGame();
+                    return;
+                }
+
+                if(rocks[i].z < -10) {
+                    scene.remove(rocks[i].mesh);
+                    rocks.splice(i, 1);
+                }
+            }
+
+            distance += speed;
+            speed = 1 + Math.floor(distance / 1000) * 0.1;
+
+            document.getElementById('distance').innerText = `DISTANCE: ${Math.floor(distance / 10)}m`;
+            document.getElementById('shells').innerText = `SHELLS: 🐚 ${shellsCollected}`;
+            document.getElementById('speed').innerText = `SPEED: ${speed.toFixed(1)}x`;
+
+            camera.position.z = 8 + speed * 0.5;
+
+            renderer.render(scene, camera);
+        }
+
+        function endGame() {
+            gameActive = false;
+            document.getElementById('finalDistance').innerText = `DISTANCE: ${Math.floor(distance / 10)}m`;
+            document.getElementById('shellsCollected').innerText = `SHELLS: 🐚 ${shellsCollected}`;
+            document.getElementById('gameOverScreen').style.display = 'block';
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        init();
+    </script>
+</body>
+</html>
